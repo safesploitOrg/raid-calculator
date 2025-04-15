@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAID Calculator</title>
+  <link rel="icon" href="assets/images/hard-disk-96.png" type="image/png""/>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-button active" onclick="switchTab('calculator')">RAID Calculator</button>
+      <button class="tab-button" onclick="switchTab('info')">What is RAID?</button>
+      <button class="tab-button" onclick="switchTab('types')">RAID Types</button>
+    </div>
+
+    <div id="calculator" class="tab-content active">
+      <h2>RAID Calculator</h2>
+      <label for="raidType">RAID Type:</label>
+      <select id="raidType">
+        <option value="0">RAID 0 (Stripe set)</option>
+        <option value="1">RAID 1 (Mirror)</option>
+        <!-- <option value="1e">RAID 1E</option> -->
+        <option value="5">RAID 5 (Parity)</option>
+        <option value="50">RAID 50 (5+0)</option>
+        <!-- <option value="5e">RAID 5E (Parity+spare)</option> -->
+        <!-- <option value="5ee">RAID 5EE (Parity+spare)</option> -->
+        <option value="10">RAID 10 (Mirror+stripe)</option>
+        <option value="6">RAID 6 (double parity)</option>
+        <option value="60">RAID 60 (6+0)</option>
+      </select>
+
+      <label for="driveCount">Number of Drives:</label>
+      <input type="number" id="driveCount" min="1" value="4" />
+
+      <label for="driveSize">Size per Drive (TB):</label>
+      <input type="number" id="driveSize" step="0.01" value="1" />
+
+      <button onclick="calculateRAID()">Calculate</button>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <div id="info" class="tab-content">
+      <h2>What is RAID?</h2>
+      <p><strong>RAID</strong> stands for <em>Redundant Array of Independent Disks</em>. It's a method of combining multiple physical drives into one logical unit for improved performance, redundancy, or both.</p>
+      <ul>
+        <li><strong>RAID 0 (Striping)</strong>: Data split across drives. Fastest, but no protection — one drive fails, all data is lost.</li>
+        <li><strong>RAID 1 (Mirroring)</strong>: Duplicates data on two or more drives. If one fails, the other keeps working. 50% usable capacity.</li>
+        <li><strong>RAID 5 (Striping + Parity)</strong>: Requires 3+ drives. One drive's worth of space is used for parity. Protects against one failure.</li>
+        <li><strong>RAID 6 (Double Parity)</strong>: Like RAID 5, but with two parity blocks. Requires 4+ drives. Survives two drive failures.</li>
+        <li><strong>RAID 10 (1+0)</strong>: A stripe of mirrors. Combines speed of RAID 0 and redundancy of RAID 1. Needs an even number of drives.</li>
+      </ul>
+      <p>Choosing the right RAID depends on your priorities: performance, redundancy, or usable capacity.</p>
+    </div>
+
+    <div id="types" class="tab-content">
+      <h2>RAID Types (Reference)</h2>
+
+      <!-- <div class="triangle-wrapper">
+        <div class="triangle-diagram">
+          <div class="label label-fast">FAST</div>
+          <div class="label label-tolerant">FAULT<br>TOLERANT</div>
+          <div class="label label-cheap">CHEAP</div>
+          <div class="label label-raid0">RAID 0</div>
+          <div class="label label-raid10">RAID 1+0</div>
+          <div class="label label-raid5">RAID 5</div>
+        </div>
+      </div>
+       -->
+
+      <h3>RAID Levels Comparison Chart</h3>
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th>RAID 0</th>
+          <th>RAID 1</th>
+          <th>RAID 1E</th>
+          <th>RAID 10</th>
+          <th>RAID 5</th>
+          <th>RAID 50</th>
+          <th>RAID 6</th>
+          <th>RAID 60</th>
+        </tr>
+        <tr>
+          <td>Min disks</td>
+          <td>2</td>
+          <td>2</td>
+          <td>3</td>
+          <td>4</td>
+          <td>3</td>
+          <td>6</td>
+          <td>4</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td>Fault tolerance</td>
+          <td>❌ None</td>
+          <td>✅ 1 disk</td>
+          <td>✅ 1 disk</td>
+          <td>✅ 1 per mirror set</td>
+          <td>✅ 1 disk</td>
+          <td>✅ 1 disk</td>
+          <td>✅ 2 disks</td>
+          <td>✅ 2 disks</td>
+        </tr>
+        <tr>
+          <td>Disk overhead</td>
+          <td>None</td>
+          <td>50%</td>
+          <td>~50%</td>
+          <td>50%</td>
+          <td>1 disk</td>
+          <td>2 disks</td>
+          <td>2 disks</td>
+          <td>4 disks</td>
+        </tr>
+        <tr>
+          <td>Read speed</td>
+          <td>🚀 Fast</td>
+          <td>🚀 Fast</td>
+          <td>🚀 Fast</td>
+          <td>🚀 Fast</td>
+          <td>🔄 Moderate–Fast*</td>
+          <td>🔄 Moderate–Fast</td>
+          <td>🔄 Moderate</td>
+          <td>🔄 Moderate</td>
+        </tr>
+        <tr>
+          <td>Write speed</td>
+          <td>🚀 Fast</td>
+          <td>⚖️ Fair</td>
+          <td>⚖️ Fair</td>
+          <td>⚖️ Fair</td>
+          <td>🐢 Slower*</td>
+          <td>🐢 Slower</td>
+          <td>🐢 Slower</td>
+          <td>🐢 Slower</td>
+        </tr>
+        <tr>
+          <td>Hardware cost</td>
+          <td>💲 Low</td>
+          <td>💲💲 High (due to mirroring)</td>
+          <td>💲💲 High</td>
+          <td>💲💲 High</td>
+          <td>💲 High</td>
+          <td>💲💲 Very high</td>
+          <td>💲💲 Very high</td>
+          <td>💲💲 Very high</td>
+        </tr>
+      </table>
+      <p><small>*Performance varies depending on hardware RAID controllers and caching capabilities.</small></p>
+
+      <hr>
+
+      <h3>RAID 50 (5+0)</h3>
+      <p>Combines multiple RAID 5 arrays striped together. Requires at least 6 drives. Offers better performance than RAID 5 with some fault tolerance.</p>
+      <table>
+        <tr><th>Stripe</th><th>RAID 5 Array</th><th>Data Layout</th></tr>
+        <tr><td>Stripe 1</td><td>Drives 1–3</td><td>Data1 | Data2 | Parity</td></tr>
+        <tr><td>Stripe 2</td><td>Drives 4–6</td><td>Data3 | Data4 | Parity</td></tr>
+      </table>
+
+      <h3>RAID 60 (6+0)</h3>
+      <p>Like RAID 50, but uses RAID 6 arrays. Requires at least 8 drives. Offers greater fault tolerance (up to 2 drives per array).</p>
+      <table>
+        <tr><th>Stripe</th><th>RAID 6 Array</th><th>Data Layout</th></tr>
+        <tr><td>Stripe 1</td><td>Drives 1–4</td><td>Data1 | Data2 | Parity1 | Parity2</td></tr>
+        <tr><td>Stripe 2</td><td>Drives 5–8</td><td>Data3 | Data4 | Parity1 | Parity2</td></tr>
+      </table>
+
+      <h3>RAID 2, 3, 4 (Rare)</h3>
+      <ul>
+        <li><strong>RAID 2:</strong> Uses Hamming code for error correction. Obsolete.</li>
+        <li><strong>RAID 3:</strong> Stripes data with a dedicated parity disk. Rare.</li>
+        <li><strong>RAID 4:</strong> Similar to RAID 5 but with a single dedicated parity disk. Rarely used.</li>
+      </ul>
+
+      <h3>Nested RAID Summary</h3>
+      <table>
+        <tr><th>RAID Level</th><th>Description</th><th>Minimum Drives</th></tr>
+        <tr><td>RAID 10</td><td>Mirror + Stripe. Fast and redundant.</td><td>4</td></tr>
+        <tr><td>RAID 01</td><td>Stripe + Mirror. Less resilient than RAID 10.</td><td>4</td></tr>
+        <tr><td>RAID 50</td><td>Stripe of RAID 5s. Balanced performance and redundancy.</td><td>6</td></tr>
+        <tr><td>RAID 60</td><td>Stripe of RAID 6s. Better fault tolerance.</td><td>8</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>
+      Generated with RAID Calculator | &copy; <span id="year"></span> |
+      <a href="https://github.com/safesploitOrg/raid-calculator" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+    </p>
+  </footer>
+
+  <script src="assets/js/script.js"></script>
+</body>
+</html>
